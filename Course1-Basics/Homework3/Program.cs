@@ -5,6 +5,9 @@ namespace Homework3
 {
     class Program
     {
+        /// <summary>
+        /// 3. Count the frequency of chars in a string
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("Please input an array separated by <,>: ");

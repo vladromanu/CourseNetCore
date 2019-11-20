@@ -5,6 +5,9 @@ namespace Homework1
 {
     class Program
     {
+        /// <summary>
+        /// 1. Write a function to remove duplicate characters from String
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("Enter text: ");

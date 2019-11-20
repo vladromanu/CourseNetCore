@@ -6,6 +6,9 @@ namespace Homework2
 {
     class Program
     {
+        /// <summary>
+        /// 2. Given an unsorted array which has a number in the majority (a number appears more than 50% in the array/list), find that number.
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("Please input an array separated by <,>: ");

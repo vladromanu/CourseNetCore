@@ -5,6 +5,9 @@ namespace Homework4
 {
     class Program
     {
+        /// <summary>
+        /// 4. Write code to reverse a linked list, if you able to do it using loops, try to solve with recursion.
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("Please input an array separated by <,>: ");
