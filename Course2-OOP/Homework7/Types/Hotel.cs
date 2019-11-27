@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Homework7.Types
 {
+    [Serializable]
     class Hotel
     {
         // Props + fields
@@ -17,7 +18,6 @@ namespace Homework7.Types
 
         public Hotel() : this("Hotel", "City", new List<Room>())
         {
-
         }
 
         public Hotel(
@@ -25,14 +25,36 @@ namespace Homework7.Types
             string _city,
             List<Room> _rooms)
         {
-            Name = _name ?? throw new ArgumentNullException(nameof(_name));
-            City = _city ?? throw new ArgumentNullException(nameof(_city));
-            Rooms = _rooms ?? throw new ArgumentNullException(nameof(_rooms));
+            this.Name = _name ?? throw new ArgumentNullException(nameof(_name));
+            this.City = _city ?? throw new ArgumentNullException(nameof(_city));
+            this.Rooms = _rooms ?? throw new ArgumentNullException(nameof(_rooms));
+        }
+        
+        private Dictionary<Guid, Rate> GetPriceForNumberOfDays(int numberOfDays)
+        {
+            Dictionary<Guid, Rate> dictionary = new Dictionary<Guid, Rate>();
+
+            for (int i = 0; i < this.Rooms.Count; i++)
+            {
+                dictionary.Add(this.Rooms[i].RoomTypeCode, this.Rooms[i].GetPriceForDays(numberOfDays));
+            }
+
+            return dictionary;
         }
 
-        public decimal GetPriceForNumberOfRooms(int numberOfRooms)
+        public Dictionary<Guid, Rate> GetRoomsUnderValue(decimal price, int numberOfDays = 1)
         {
-            return 1M;
+            Dictionary<Guid, Rate> dictionary = this.GetPriceForNumberOfDays(numberOfDays);
+            
+            foreach (KeyValuePair<Guid, Rate> entry in dictionary)
+            {
+                if(entry.Value.Amount > price)
+                {
+                    dictionary.Remove(entry.Key);
+                }
+            }
+
+            return dictionary;
         }
 
         public string Print

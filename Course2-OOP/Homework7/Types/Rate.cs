@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Homework7.Types
 {
+    [Serializable]
     class Rate
     {
         // Props + fields

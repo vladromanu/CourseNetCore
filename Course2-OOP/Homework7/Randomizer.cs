@@ -39,10 +39,11 @@ namespace Homework7
             Array values = Enum.GetValues(typeof(Currency));
             return Enum.GetName(typeof(Currency), values.GetValue(new Random().Next(values.Length)));
         }
-
+        
         public static List<Hotel> GenerateHotels(int number = 5)
         {
             List<Hotel> hotels = new List<Hotel>();
+            Random rand = new Random();
 
             for (int i = 0; i < number; i++)
             {
@@ -52,8 +53,8 @@ namespace Homework7
                     City = Randomizer.RandomCity(),
                     Rooms = new List<Room>()
                     {
-                        new Room() { Name = "Double Standard", Adults = 2, Children = 0, Rate = new Rate(){ Amount = Randomizer.RandomAmout(), Currency=Currency.EUR} },
-                        new Room() { Name = "Double Deluxe", Adults = 2, Children = 0, Rate = new Rate(){ Amount = Randomizer.RandomAmout(), Currency=Currency.EUR} },
+                        new Room() { RoomTypeCode = Guid.NewGuid(), Name = "Double Standard", Adults = (byte) rand.Next(1,4), Children = (byte) rand.Next(0,3), Rate = new Rate(){ Amount = Randomizer.RandomAmout(), Currency=Currency.EUR} },
+                        new Room() { RoomTypeCode = Guid.NewGuid(), Name = "Double Deluxe", Adults = (byte) rand.Next(1,4), Children = (byte) rand.Next(0,3), Rate = new Rate(){ Amount = Randomizer.RandomAmout(), Currency=Currency.EUR} },
                     }
                 });
             }

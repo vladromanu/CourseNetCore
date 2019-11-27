@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Homework7.Types
 {
+    [Serializable]
     class Room
     {
         // Just Props 
@@ -11,6 +10,7 @@ namespace Homework7.Types
         public byte Adults { get; set; }
         public byte Children { get; set; }
         public string Name { get; set; }
+        public Guid RoomTypeCode{ get; set; }
 
         public Rate GetPriceForDays(int numberOfDays) => new Rate()
         {
@@ -22,7 +22,7 @@ namespace Homework7.Types
         {
             get
             {
-                return $"RoomName: {this.Name} Adults:{this.Adults} Children:{this.Children} {this.Rate}";
+                return $"RoomName: {this.Name} RoomTypeCode: {this.RoomTypeCode} Adults:{this.Adults} Children:{this.Children} {this.Rate}";
             }
         }
         public override string ToString()
