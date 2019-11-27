@@ -1,18 +1,20 @@
-﻿using System;
+﻿using Homework7.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Homework7.Models
+namespace Homework7.Types
 {
     class Rate
     {
+        // Props + fields
         private decimal amount;
         private Currency currency;
 
         public decimal Amount { get => amount; set => amount = value; }
         public Currency Currency { get => currency; set => currency = value; }
 
-        public Rate() : this(100, Currency.EUR)
+        public Rate() : this(100M, Currency.EUR)
         {
         }
 
@@ -26,7 +28,7 @@ namespace Homework7.Models
         {
             get
             {
-                return $"{Amount} {Enum.GetName(typeof(Currency), Currency)}";
+                return string.Format("Rate: {0:0.00} {1}", this.Amount, Enum.GetName(typeof(Currency), this.Currency)); 
             }
         }
 

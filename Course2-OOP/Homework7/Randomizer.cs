@@ -1,5 +1,5 @@
 ﻿using Homework7.Enums;
-using Homework7.Models;
+using Homework7.Types;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,17 +31,13 @@ namespace Homework7
         public static string RandomCity()
         {
             Array values = Enum.GetValues(typeof(City));
-            Random random = new Random();
-
-            return Enum.GetName(typeof(City), values.GetValue(random.Next(values.Length)));
+            return Enum.GetName(typeof(City), values.GetValue(new Random().Next(values.Length)));
         }
 
         public static string RandomCurrency()
         {
             Array values = Enum.GetValues(typeof(Currency));
-            Random random = new Random();
-
-            return Enum.GetName(typeof(Currency), values.GetValue(random.Next(values.Length)));
+            return Enum.GetName(typeof(Currency), values.GetValue(new Random().Next(values.Length)));
         }
 
         public static List<Hotel> GenerateHotels(int number = 5)
@@ -55,6 +51,10 @@ namespace Homework7
                     Name = $"Hotel {i}",
                     City = Randomizer.RandomCity(),
                     Rooms = new List<Room>()
+                    {
+                        new Room() { Name = "Double Standard", Adults = 2, Children = 0, Rate = new Rate(){ Amount = Randomizer.RandomAmout(), Currency=Currency.EUR} },
+                        new Room() { Name = "Double Deluxe", Adults = 2, Children = 0, Rate = new Rate(){ Amount = Randomizer.RandomAmout(), Currency=Currency.EUR} },
+                    }
                 });
             }
 

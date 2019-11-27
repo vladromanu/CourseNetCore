@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Homework7.Models
+namespace Homework7.Enums
 {
     public enum Currency
     {
