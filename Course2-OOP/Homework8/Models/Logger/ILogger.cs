@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Homework8.Models.Interfaces
+namespace Homework8.Models.Logger
 {
     interface ILogger
     {
