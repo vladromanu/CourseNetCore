@@ -17,5 +17,27 @@ namespace Homework8.Models
         public DateTime ConfirmationDate { get; set; }
         public DateTime CancellationDate { get; set; }
         public DateTime DeliveryDate { get; set; }
+
+        public void ConfirmOrder()
+        {
+            this.Status = OrderStatus.CONFIRMED;
+            this.ConfirmationDate = DateTime.Now;
+        }
+        public void CancelOrder()
+        {
+            this.Status = OrderStatus.CANCELLED;
+            this.CancellationDate = DateTime.Now;
+        }
+        public void DeliverOrder()
+        {
+            this.Status = OrderStatus.DELIVERED;
+            this.DeliveryDate = DateTime.Now;
+        }
+
+        public Order()
+        {
+            Status = OrderStatus.ENQUIRY;
+        }
+
     }
 }

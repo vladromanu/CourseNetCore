@@ -6,39 +6,47 @@ using System.Text;
 
 namespace Homework8.Models
 {
-    class Store : IStore
+    abstract class Store : IStore
     {
-        public string Name { get; set; }
-        public string City { get; set; }
+        public abstract string Name { get; }
+        public abstract string City { get; }
+
         public List<Car> CarsInStock { get; set; }
         public List<Producer> Brands { get; set; }
         public Dictionary<Guid, Order> Orders { get; set; }
-        public int EnquiryOrder(Order order)
+
+        public abstract int GetWeeksTillDelivery();
+        public abstract void SetStoreBrands();
+        public abstract void SetStoreInventory();
+
+        public Store()
         {
-            order.Status = OrderStatus.ENQUIRY;
-            order.DeliveryTime = new Random().Next(1, 10);
-            
-            this.Orders.Add(order.OrderId, order);
+            this.CarsInStock = new List<Car>();
+            this.Brands = new List<Producer>();
+            this.Orders = new Dictionary<Guid, Order>();
 
-            return order.DeliveryTime;
-        }
-        public void PlaceOrder(Order order)
-        {
-            if(!this.Orders.ContainsKey(order.OrderId))
-            {
-                throw new ArgumentOutOfRangeException("Order could not be found within the placed lists");
-            }
-
-            if(this.Orders[order.OrderId].Status != OrderStatus.ENQUIRY)
-            {
-                throw new ArgumentException($"Could not find an enquiry order with this order id <{order.OrderId}>");
-            }
-
-            this.Orders[order.OrderId].Status = OrderStatus.CONFIRMED;
-            this.Orders[order.OrderId].ConfirmationDate = new DateTime();
+            this.SetStoreBrands();
+            this.SetStoreInventory();
         }
 
-        public void CancelOrder(Order order)
+        public virtual Order RegisterOrder(Customer customer, Car car)
+        {
+            Order newOrder = new Order()
+            {
+                OrderId = Guid.NewGuid(),
+                Customer = customer,
+                Car = car
+            };
+
+            newOrder.ConfirmOrder();
+            newOrder.DeliveryTime = this.GetWeeksTillDelivery();
+
+            this.Orders.Add(newOrder.OrderId, newOrder);
+
+            return newOrder;
+        }
+
+        public virtual OrderStatus CancelOrder(Order order)
         {
             if (!this.Orders.ContainsKey(order.OrderId))
             {
@@ -51,11 +59,12 @@ namespace Homework8.Models
                     throw new ArgumentException($"Order already cancelled <{order.OrderId}>");
             }
 
-            this.Orders[order.OrderId].Status = OrderStatus.CANCELLED;
-            this.Orders[order.OrderId].CancellationDate = new DateTime();
+            this.Orders[order.OrderId].CancelOrder();
+
+            return this.Orders[order.OrderId].Status;
         }
 
-        public void DeliverOrder(Order order)
+        public virtual OrderStatus DeliverOrder(Order order)
         {
             if (!this.Orders.ContainsKey(order.OrderId))
             {
@@ -71,8 +80,9 @@ namespace Homework8.Models
                     throw new ArgumentException($"Order already cancelled <{order.OrderId}>");
             }
 
-            this.Orders[order.OrderId].Status = OrderStatus.DELIVERED;
-            this.Orders[order.OrderId].DeliveryDate = new DateTime();
+            this.Orders[order.OrderId].DeliverOrder();
+
+            return this.Orders[order.OrderId].Status;
         }
     }
 }

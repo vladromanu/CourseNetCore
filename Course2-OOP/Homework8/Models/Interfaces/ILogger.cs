@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Homework8.Models.Interfaces
 {
-    interface IProducer
+    interface ILogger
     {
-        public string Name { get; }
-        public Guid ProducerId { get;  }
+        public void Log(string msg);
+        public void Close();
     }
 }

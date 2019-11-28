@@ -7,7 +7,21 @@ namespace Homework8.Models
 {
     class Producer : IProducer
     {
-        public string Name { get; set; }
-        public Guid ProducerId { get; set; }
+        private string name;
+        private Guid producerId;
+
+        public string Name { get => this.name; }
+        public Guid ProducerId { get => this.producerId; }
+
+        public Producer(string name, Guid producerId)
+        {
+            this.name = name;
+            this.producerId = producerId;
+        }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
     }
 }
