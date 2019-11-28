@@ -1,8 +1,7 @@
-﻿using Homework8.Models.Enums;
+﻿using Homework8.Models.Basic;
 using Homework8.Models.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Homework8.Models
 {
@@ -15,7 +14,7 @@ namespace Homework8.Models
         public List<Producer> Brands { get; set; }
         public Dictionary<Guid, Order> Orders { get; set; }
 
-        public abstract int GetWeeksTillDelivery();
+        public abstract int GetStoreWeeksTillDelivery();
         public abstract void SetStoreBrands();
         public abstract void SetStoreInventory();
 
@@ -39,7 +38,7 @@ namespace Homework8.Models
             };
 
             newOrder.ConfirmOrder();
-            newOrder.DeliveryTime = this.GetWeeksTillDelivery();
+            newOrder.DeliveryTime = this.GetStoreWeeksTillDelivery();
 
             this.Orders.Add(newOrder.OrderId, newOrder);
 
@@ -53,10 +52,9 @@ namespace Homework8.Models
                 throw new ArgumentOutOfRangeException("Order could not be found within the placed lists");
             }
 
-            switch (this.Orders[order.OrderId].Status)
+            if (this.Orders[order.OrderId].Status == OrderStatus.CANCELLED)
             {
-                case OrderStatus.CANCELLED:
-                    throw new ArgumentException($"Order already cancelled <{order.OrderId}>");
+                throw new ArgumentException($"Order already cancelled <{order.OrderId}>");
             }
 
             this.Orders[order.OrderId].CancelOrder();
@@ -71,13 +69,9 @@ namespace Homework8.Models
                 throw new ArgumentOutOfRangeException("Order could not be found within the placed lists");
             }
 
-            switch (this.Orders[order.OrderId].Status)
+            if (this.Orders[order.OrderId].Status == OrderStatus.CANCELLED)
             {
-                case OrderStatus.ENQUIRY:
-                    throw new ArgumentException($"Order is not confirmed yet <{order.OrderId}>");
-
-                case OrderStatus.CANCELLED:
-                    throw new ArgumentException($"Order already cancelled <{order.OrderId}>");
+                throw new ArgumentException($"Order already cancelled <{order.OrderId}>");
             }
 
             this.Orders[order.OrderId].DeliverOrder();

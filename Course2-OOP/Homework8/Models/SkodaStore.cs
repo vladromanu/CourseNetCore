@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Homework8.Models.Basic;
+using System;
 
 namespace Homework8.Models
 {
@@ -14,7 +13,7 @@ namespace Homework8.Models
             // .. 
         }
         
-        public override int GetWeeksTillDelivery()
+        public override int GetStoreWeeksTillDelivery()
         {
             return 3;
         }

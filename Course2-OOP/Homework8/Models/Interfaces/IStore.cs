@@ -1,7 +1,6 @@
-﻿using Homework8.Models.Enums;
+﻿using Homework8.Models.Basic;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Homework8.Models.Interfaces
 {

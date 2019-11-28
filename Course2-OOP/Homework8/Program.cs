@@ -1,9 +1,7 @@
 ﻿using Homework8.Models;
-using Homework8.Models.Enums;
-using Homework8.Models.Interfaces;
+using Homework8.Models.Basic;
 using Homework8.Models.Logger;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace Homework8

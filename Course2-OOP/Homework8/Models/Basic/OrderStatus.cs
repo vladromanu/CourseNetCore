@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Homework8.Models.Enums
+﻿namespace Homework8.Models.Basic
 {
     enum OrderStatus
     {

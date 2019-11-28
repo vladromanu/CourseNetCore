@@ -8,8 +8,8 @@ namespace Homework8.Models
 {
     class Customer : IPerson
     {
-        public string name;
-        public Guid customerId;
+        private string name;
+        private Guid customerId;
 
         public string Name { get => this.name; }
         public Guid CustomerId { get => this.customerId; }
