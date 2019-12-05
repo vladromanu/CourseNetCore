@@ -46,8 +46,8 @@ namespace HomeworkTests
             }
         }
 
-
-
+        
+        
         [TestMethod]
         [ExpectedException(typeof(InvalidRangeException<DateTime>))]
         public void TestGenericDateTimeMaxRangeIsReached()
@@ -83,6 +83,6 @@ namespace HomeworkTests
             {
                 Assert.Fail("Expected no exception, but got: " + ex.Message);
             }
-                    }
+        }
     }
 }

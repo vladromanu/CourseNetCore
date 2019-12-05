@@ -7,9 +7,7 @@ namespace Homework9
 
     class Program
     {
-        /// <summary>
-        /// 1. Using delegates write a class Timer that can execute certain method at each t seconds.
-        /// </summary>
+        // 1. Using delegates write a class Timer that can execute certain method at each t seconds.
         static void Main(string[] args)
         {
             // Tick - Tock Competing 

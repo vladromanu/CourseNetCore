@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Homework9
 {
-    class HomeworkTimer
+    public class HomeworkTimer
     {
         private int Period { get; set; }
         private int Runs { get; set; }

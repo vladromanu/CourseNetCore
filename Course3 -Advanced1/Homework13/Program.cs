@@ -7,7 +7,6 @@ namespace Homework13
         static void Main(string[] args)
         {
             // Implement:IClock. Add Unit tests.
-
             Clock clock = new Clock();
             
             Console.WriteLine("Hello World!");

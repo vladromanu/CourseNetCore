@@ -9,5 +9,10 @@
         public string Title { get; set; }
 
         public string Body { get; set; }
+
+        public override string ToString()
+        {
+            return new string($"Post[{this.Id}] by {this.UserId} -- title: {this.Title} --- body: {this.Body}");
+        }
     }
 }

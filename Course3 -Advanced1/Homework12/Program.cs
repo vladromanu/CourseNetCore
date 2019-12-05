@@ -5,7 +5,7 @@
     using System.Linq;
     using Models;
 
-    internal class Program
+    public class Program
     {
         private static void Main(string[] args)
         {
@@ -29,8 +29,7 @@
             Console.ReadKey();
         }
 
-
-        private static string Exercise1(List<User> allUsers, List<Post> allPosts)
+        public static string Exercise1(List<User> allUsers, List<Post> allPosts)
         {
             #region Exercise 1 
             // Find all users having email ending with ".net".
@@ -45,7 +44,6 @@
                                             select user.Name;
 
             var userNames2 = allUsers.Select(user => user.Name);
-
             foreach (var value in userNames2)
             {
                 Console.WriteLine(value);
@@ -66,7 +64,7 @@
             #endregion
         }
 
-        private static IEnumerable<Post> Exercise2(List<User> allUsers, List<Post> allPosts)
+        public static IEnumerable<Post> Exercise2(List<User> allUsers, List<Post> allPosts)
         {
             #region Exercise 2 
             // Find all posts for users having email ending with ".net".
@@ -86,59 +84,57 @@
             return posts;
             #endregion
         }
-        
-        private static void Exercise3(List<User> allUsers, List<Post> allPosts)
+
+        public static Dictionary<int, int> Exercise3(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 3 
             // Print number of posts for each user.
             Console.WriteLine("Exercise 3: ");
 
-            List<object> list = new List<object>();
-            var postsCounts = from post in allPosts
+            Dictionary<int, int> postsCounts = (from post in allPosts
                               group post by post.UserId into g
                               select new
                               {
                                   UserId = g.Key,
                                   count = g.Count(),
-                              };
+                              }).ToDictionary(k => k.UserId, v => v.count);
 
             foreach (var post in postsCounts)
             {
-                Console.WriteLine($"User[{post.UserId}] count: {post.count}");
+                Console.WriteLine($"User[{post.Key}] count: {post.Value}");
             }
-            #endregion
+
+            return postsCounts;
         }
 
-        private static List<object> Exercise4(List<User> allUsers, List<Post> allPosts)
+        public static Dictionary<int, Geo> Exercise4(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 4
             // Find all users that have lat and long negative.
             Console.WriteLine("\n\nExercise 4: ");
 
-            List<object> list = new List<object>();
-            var userNegLangLong = from user in allUsers
-                                  where (user.Address.Geo.Lat < 0 ||
+            Dictionary<int, Geo> list = (from user in allUsers
+                                  where (user.Address.Geo.Lat < 0 &&
                                   user.Address.Geo.Lng < 0)
                                   select new
                                   {
                                       UserId = user.Id,
                                       Lat = user.Address.Geo.Lat,
                                       Lng = user.Address.Geo.Lng
-                                  };
+                                  }).ToDictionary(k => k.UserId, v => new Geo()
+                                  {
+                                      Lat = v.Lat,
+                                      Lng = v.Lng
+                                  });
 
-            foreach (var user in userNegLangLong)
+            foreach (var user in list)
             {
-                list.Add(user);
-                Console.WriteLine($"User[{user.UserId}] Lat: {user.Lat} Lng: {user.Lng}");
+                Console.WriteLine($"User[{user.Key}] Lat: {user.Value.Lat} Lng: {user.Value.Lng}");
             }
 
             return list;
-            #endregion
         }
 
-        private static string Exercise5(List<User> allUsers, List<Post> allPosts)
+        public static (int id, int count) Exercise5(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 5 
             // Find the post with longest body.
             Console.WriteLine("\n\nExercise 5: ");
             var longesPost = (from post in allPosts
@@ -152,14 +148,11 @@
 
             Console.WriteLine($"longesPost ID[{longesPost.PostId}] Count: {longesPost.Count} Body: {longesPost.Body}");
 
-            return longesPost.PostId.ToString();
-            #endregion
-
+            return (longesPost.PostId, longesPost.Body.Length);
         }
 
-        private static string Exercise6(List<User> allUsers, List<Post> allPosts)
+        public static string Exercise6(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 6 
             // Print the name of the employee that have post with longest body.
             Console.WriteLine("\n\nExercise 6: ");
             var nameWithLongestPost = (from post in allPosts
@@ -170,36 +163,25 @@
             Console.WriteLine($"longesPost User name {nameWithLongestPost}");
 
             return nameWithLongestPost;
-            #endregion
         }
 
-        private static void Exercise7(List<User> allUsers, List<Post> allPosts)
+        public static List<Address> Exercise7(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 7 
             // Select all addresses in a new List<Address>. print the list.
             Console.WriteLine("\n\nExercise 7: ");
-            /*List<Address> newList = from user in allUsers
-                                    select new
-                                    {
-                                        Street = user.Address.Street,
-                                        Suite = user.Address.Suite,
-                                        City = user.Address.City,
-                                        Zipcode = user.Address.Zipcode,
-                                        Geo = new Geo()
-                                        {
-                                            Lat = user.Address.Geo.Lat,
-                                            Lng = user.Address.Geo.Lng
-                                        }
-                                    };*/
-            #endregion
+            var addressList = (from user in allUsers
+                                    select user.Address).ToList();
+
+            addressList.ForEach(address => Console.WriteLine($"{address}"));
+
+            return addressList;
         }
 
         //  var eventids = GetEventIdsByEventDate(DateTime.Now);
         //var result = eventsdb.Where(e => eventids.Contains(e));
 
-        private static string Exercise8(List<User> allUsers, List<Post> allPosts)
+        public static (string name, double lat) Exercise8(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 8 
             // Print the user with min lat
             Console.WriteLine("\n\nExercise 8: ");
             var result = (from user in allUsers
@@ -207,17 +189,15 @@
                                   select new{
                                       Name = user.Name,
                                       Lat= user.Address.Geo.Lng
-                                   }).FirstOrDefault();
+                                  }).FirstOrDefault();
 
             Console.WriteLine($"longesPost User with min lat {result.Name} [{result.Lat}]");
-            
-            return result.Name;
-            #endregion
+
+            return (result.Name, result.Lat);
         }
 
-        private static string Exercise9(List<User> allUsers, List<Post> allPosts)
+        public static (string name, double lng) Exercise9(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 9 
             // Print the user with max long
             Console.WriteLine("\n\nExercise 9: ");
             var result = (from user in allUsers
@@ -230,44 +210,76 @@
 
             Console.WriteLine($"longesPost User with max long {result.Name} [{result.Lng}]");
 
-            return result.Name;
-            #endregion
+            return (result.Name, result.Lng);
         }
 
-        private static void Exercise10(List<User> allUsers, List<Post> allPosts)
+        public static List<UserPosts> Exercise10(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise  10 
             //    - create a new class: public class UserPosts { public User User {get; set}; public List<Post> Posts {get; set} }
             //    - create a new list: List<UserPosts>
             //    - insert in this list each user with his posts only
+            
+            List<UserPosts> userPosts = (from user in allUsers
+                       join post in allPosts on user.Id equals post.UserId
+                       group post by user into gr
+                       select new UserPosts()
+                       {
+                           User = gr.Key,
+                           Posts = gr.ToList()
+                       }).ToList();
+            
+            userPosts.ForEach(up =>
+            {
+                Console.WriteLine($"{up.User}");
+                up.Posts.ForEach(post => Console.WriteLine($"{post}"));
+                Console.WriteLine("\n\n");
+            });
 
-            #endregion
+            return userPosts;
         }
 
-        private static void Exercise11(List<User> allUsers, List<Post> allPosts)
+        public static List<User> Exercise11(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 11 
             // Order users by zip code
+            Console.WriteLine("\n\nExercise 11: ");
+            List<User> usersByZipCode = (from user in allUsers
+                                 orderby user.Address.Zipcode
+                                 select user).ToList();
 
-            #endregion
+            foreach (User user in usersByZipCode)
+            {
+                Console.WriteLine($"User ID[{user.Id}] ZipCode: {user.Address.Zipcode}");
+            }
+
+            return usersByZipCode;
         }
 
-        private static void Exercise12(List<User> allUsers, List<Post> allPosts)
+        public static Dictionary<int, int> Exercise12(List<User> allUsers, List<Post> allPosts)
         {
-            #region Exercise 12 
             // Order users by number of posts
+            Console.WriteLine("\n\nExercise 12: ");
+            Dictionary<int, int> usersByPostCounts = (from user in allUsers
+                                 join post in allPosts on user.Id equals post.UserId
+                                 group post by user.Id into gr
+                                 orderby gr.Count() descending
+                                 select new { id = gr.Key, count = gr.Count() }).ToDictionary(k => k.id, v => v.count);
 
-            #endregion
+            foreach (var user in usersByPostCounts)
+            {
+                Console.WriteLine($"User ID[{user.Key}] PostCount: {user.Value}");
+            }
+
+            return usersByPostCounts;
         }
 
 
 
-        private static List<Post> ReadPosts(string file)
+        public static List<Post> ReadPosts(string file)
         {
             return ReadData.ReadFrom<Post>(file);
         }
 
-        private static List<User> ReadUsers(string file)
+        public static List<User> ReadUsers(string file)
         {
             return ReadData.ReadFrom<User>(file);
         }

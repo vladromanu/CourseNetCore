@@ -11,5 +11,10 @@
         public string Zipcode { get; set; }
 
         public Geo Geo { get; set; }
+
+        public override string ToString()
+        {
+            return new string($"Street: {this.Street} Suite: {this.Suite} City: {this.City} ZipCode: {this.Zipcode} Geo: {this.Geo}");
+        }
     }
 }

@@ -17,5 +17,10 @@
         public string Website { get; set; }
 
         public Company Company { get; set; }
+
+        public override string ToString()
+        {
+            return new string($"User[{this.Id}] {this.Name} -- email: {this.Email}");
+        }
     }
 }

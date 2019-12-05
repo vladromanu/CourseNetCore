@@ -17,7 +17,6 @@ namespace Homework11.Generic
 
         public void AddRanged<T>(T element) where T : IComparable
         {
-            
             if( element.CompareTo(this.RangeMax) > 0 || element.CompareTo(this.RangeMin) < 0 )
             {
                 throw new InvalidRangeException<T>((dynamic)this.RangeMin, (dynamic)this.RangeMax, (dynamic) element);
