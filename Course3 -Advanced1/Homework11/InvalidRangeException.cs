@@ -6,7 +6,7 @@ using System.Text;
 namespace Homework11
 {
     [System.Serializable]
-    class InvalidRangeException<T> : System.Exception
+    public class InvalidRangeException<T> : System.Exception
     {
         private static readonly string DefaultMessage = "Invalid range exception";
 
@@ -18,7 +18,7 @@ namespace Homework11
         {
             this.RangeMin = min ?? throw new ArgumentNullException(nameof(min));
             this.RangeMax = max ?? throw new ArgumentNullException(nameof(max));
-            this.Element = max ?? throw new ArgumentNullException(nameof(element));
+            this.Element = element ?? throw new ArgumentNullException(nameof(element));
         }
 
         public override string Message { 

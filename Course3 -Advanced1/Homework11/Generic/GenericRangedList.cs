@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Homework11.Generic
 {
-    class GenericRangedList<T> : List<T>
+    public class GenericRangedList<T> : List<T>
     {
         public T RangeMin { get; set; }
         public T RangeMax { get; set; }
@@ -17,6 +17,7 @@ namespace Homework11.Generic
 
         public void AddRanged<T>(T element) where T : IComparable
         {
+            
             if( element.CompareTo(this.RangeMax) > 0 || element.CompareTo(this.RangeMin) < 0 )
             {
                 throw new InvalidRangeException<T>((dynamic)this.RangeMin, (dynamic)this.RangeMax, (dynamic) element);

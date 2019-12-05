@@ -32,7 +32,6 @@ namespace Homework9
             timer3.Start();
 
 
-
             Console.ReadKey();
         }
 

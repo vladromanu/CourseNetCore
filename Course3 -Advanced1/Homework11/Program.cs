@@ -42,7 +42,6 @@ namespace Homework11
             {
                 GenericRangedList<DateTime> listDates = new GenericRangedList<DateTime>(DateTime.Now, new DateTime(2020, 01, 01, 00, 00, 00));
 
-                listDates.AddRanged(DateTime.Now);
                 listDates.AddRanged(new DateTime(2019, 12, 5, 12, 00, 00));
                 listDates.AddRanged(new DateTime(2019, 12, 7, 12, 00, 00));
                 listDates.AddRanged(new DateTime(2019, 12, 15, 12, 00, 00));
