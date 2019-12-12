@@ -16,28 +16,13 @@ namespace Homework15
 
         static void Main(string[] args)
         {
-            /**
-             * Having the 10 files at some location (containing words), read the data using tasks and use TPL in order to:
-                count of all words
-                count of distinct words
-                search for a specific words (contains)
-
-                group words per categories
-                    xs (0-5 chars)
-                    s (5-10 chars)
-                    m (10-15 chars)
-                    l (larger than 15)
-
-                you have files here: https://github.com/andreiscutariu002/wantsome-dotnet-public/tree/master/advanced.day.02.threading.home/data
-                you can generate own files also using https://github.com/andreiscutariu002/wantsome-dotnet-public/tree/master/advanced.day.02.threading.home/sln/WordGenerator (just run the console)
-            */
             string searchedWord = "oqerelo";
-
             string dir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
 
             // Bag to put the words
             ConcurrentBag<string> bag = new ConcurrentBag<string>();
             
+            // Put the words in the bag in a parallel for each file
             Parallel.For(0, FilesToProcess, (index, state) =>
             {
                 List<string> words = new List<string>();
@@ -54,8 +39,10 @@ namespace Homework15
             });
 
 
+            // To store the word categories
             ConcurrentDictionary<string, List<string>> wordCategDictionary = new ConcurrentDictionary<string, List<string>>();
             
+            // Create new tasks for the word processing 
             var parent = Task.Factory.StartNew(() =>
             {
                 var childFactory = new TaskFactory(TaskCreationOptions.AttachedToParent, TaskContinuationOptions.None);
@@ -96,19 +83,21 @@ namespace Homework15
                     wordCategDictionary.TryAdd("l", l.ToList());
                 });
 
-                // searched item
+                /**
+                 *   SEARCHED ITEM 
+                 */
                 childFactory.StartNew(() =>
                 {
-                    var searchedObj = from item in bag
+                    var searchedObj = (from item in bag
                             where item == searchedWord
                             group item by item into g
                             select new
                             {
                                 item = g.Key,
                                 count = g.Count(),
-                            };
+                            }).FirstOrDefault();
                     
-                    //Console.WriteLine($"Word {searchedObj.item} is found {searchedObj.count} times");
+                    Console.WriteLine($"Word {searchedObj.item} is found {searchedObj.count} times");
 
                 });
             });
@@ -126,11 +115,14 @@ namespace Homework15
                 });
             }
 
+            // Word count from bag
             Console.WriteLine($"Total words: {bag.Count}");
 
+            // Distinct words from bag
             HashSet<string> distinctWords = new HashSet<string>(bag);
             Console.WriteLine($"Total distinct words: {distinctWords.Count}");
 
+            // Categories count 
             foreach (KeyValuePair<string, List<string>> item in wordCategDictionary)
             {
                 Console.WriteLine($"Total words [{item.Key}]: {item.Value.Count}");

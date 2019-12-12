@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 
 namespace Homework14
 {
-    // Integer with the largest number of divisors.
-    //  - Write a program that uses multiple threads to find the integer in the range 1 to 100 000 that has the largest number of divisors.
-    //  - By using threads, your program will should take less time to do the computation when it is run on a multiprocessor computer.
-    //  - At the end of the program, output the elapsed time, the integer that has the largest number of divisors, and the number of divisors that it has.
     class Program
     {
         private static int maxNumber = 100000;
@@ -19,22 +15,21 @@ namespace Homework14
 
         private static ConcurrentBag<Record> _staticBag = new ConcurrentBag<Record>();
 
+        static void Main(string[] args)
+        {
+            
+            SolutionThreads();
+            //SolutionTaskFactoryContinueWhenAll();
+            //SolutionTaskFactoryContinueWithFromParentTask();
+
+            Console.ReadKey();
+        }
+
         private static IEnumerable<int> ProperDivisors(int number)
         {
             return
                 Enumerable.Range(1, number / 2)
                     .Where(divisor => number % divisor == 0);
-        }
-
-        static void Main(string[] args)
-        {
-            SolutionThreads();
-
-            //SolutionTaskFactoryContinueWhenAll();
-
-            //SolutionTaskFactoryContinueWithFromParentTask();
-
-            Console.ReadKey();
         }
 
         private static void SolutionThreads()
