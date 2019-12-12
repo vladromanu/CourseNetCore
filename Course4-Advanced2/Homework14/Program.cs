@@ -14,6 +14,9 @@ namespace Homework14
     class Program
     {
         private static int maxNumber = 100000;
+        private static int _batchSize = 10000;
+
+        private static ConcurrentBag<Record> _staticBag = new ConcurrentBag<Record>();
 
         private static IEnumerable<int> ProperDivisors(int number)
         {
@@ -25,6 +28,8 @@ namespace Homework14
         static void Main(string[] args)
         {
 
+            //SolutionThreads();
+
             SolutionTaskFactoryContinueWhenAll();
 
             //SolutionTaskFactoryContinueWithFromParentTask();
@@ -32,6 +37,43 @@ namespace Homework14
             Console.ReadKey();
 
         }
+
+        private static void SolutionThreads()
+        {
+            List<Thread> _threadList = new List<Thread>();
+
+            for (int i = 0; i < maxNumber/_batchSize; i++)
+            {
+                var thread = new Thread(DoWork);
+                _threadList.Add(thread);
+
+                thread.Start(i);
+            }
+
+            foreach (var task in _threadList)
+            {
+                task.Join();
+            }
+
+            Record result = (from record in _staticBag
+                             orderby record.DivisorsCount descending
+                             select record).First();
+
+            Console.WriteLine($"Number: {result.Number} \nDivisors: {result.DivisorsCount}");
+
+        }
+
+        public static void DoWork(object start)
+        {
+            Record record = Enumerable.Range((int) start * _batchSize, _batchSize).Select(number => new Record()
+            {
+                Number = number,
+                DivisorsCount = ProperDivisors(number).Count()
+            }).OrderByDescending(currentRecord => currentRecord.DivisorsCount).First();
+
+            _staticBag.Add(record);
+        }
+
 
         private static void SolutionTaskFactoryContinueWhenAll()
         {
@@ -47,29 +89,29 @@ namespace Homework14
             // Create the Task Factory and add all the Tasks from 0 to threadsNumber to process different ranges in parallel 
             TaskFactory tf = new TaskFactory(TaskCreationOptions.AttachedToParent, TaskContinuationOptions.ExecuteSynchronously);
 
+                      
             for (int i = 0; i < threadsNumber; i++)
             {
-                // Start new Tasks for each segment we need to calculate
-                _taskList[i] = tf.StartNew(() =>
+                // Start new Tasks for each segment we need to calculate; pass in the index 
+                _taskList[i] = tf.StartNew((object obj) =>
                 {
-
-                    Record record = Enumerable.Range(i * batchSize, batchSize).Select(number => new Record()
+                    Record record = Enumerable.Range((int)obj * batchSize, batchSize).Select(number => new Record()
                     {
                         Number = number,
                         DivisorsCount = ProperDivisors(number).Count()
                     }).OrderByDescending(currentRecord => currentRecord.DivisorsCount).First();
 
                     bag.Add(record);
-
-                });
+                }, i );
             }
 
             // Wait for all to finish then output
             Task.Factory.ContinueWhenAll(_taskList, completedTasks => {
-                foreach (var record in bag)
-                {
-                    Console.WriteLine("{0}: {1}", record.Number, record.DivisorsCount);
-                }
+                Record result = (from record in bag
+                                 orderby record.DivisorsCount descending
+                                 select record).FirstOrDefault();
+
+                Console.WriteLine($"Number: {result.Number} \nDivisors: {result.DivisorsCount}");
             });
 
         }
@@ -93,18 +135,16 @@ namespace Homework14
                 for (int i = 0; i < threadsNumber; i++)
                 {
                     // Start new Tasks for each segment we need to calculate
-                    tf.StartNew(() =>
+                    tf.StartNew((object obj) =>
                     {
-
-                        Record record = Enumerable.Range(i * batchSize, batchSize).Select(number => new Record()
+                        Record record = Enumerable.Range((int)obj * batchSize, batchSize).Select(number => new Record()
                         {
                             Number = number,
                             DivisorsCount = ProperDivisors(number).Count()
                         }).OrderByDescending(currentRecord => currentRecord.DivisorsCount).First();
 
                         bag.Add(record);
-
-                    });
+                    }, i);
                 }
             });
 
@@ -115,15 +155,15 @@ namespace Homework14
             var finalTask = resultsFetcherTask.ContinueWith(
                 previous =>
                 {
-                    foreach (var record in bag)
-                    {
-                        Console.WriteLine("{0}: {1}", record.Number, record.DivisorsCount);
-                    }
+                    Record result = (from record in bag
+                                  orderby record.DivisorsCount descending
+                                  select record).FirstOrDefault();
+
+                    Console.WriteLine($"Number: {result.Number} \nDivisors: {result.DivisorsCount}");
+
                 });
 
             finalTask.Wait();
         }
-
-        
     }
 }

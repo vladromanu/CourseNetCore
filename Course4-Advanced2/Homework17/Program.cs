@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Homework17
@@ -11,7 +12,8 @@ namespace Homework17
             /**
              *  File processor
 
-                Implement a console app that process files from a specific location. Each file should be processed. After 10 files is processed, the content is displayed to console and the program exit.
+                Implement a console app that process files from a specific location. Each file should be processed. 
+                After 10 files is processed, the content is displayed to console and the program exit.
                 Use publisher/consumer pattern.
 
                 Notes:
@@ -26,8 +28,10 @@ namespace Homework17
             */
 
             BlockingCollection<int> bCollection = new BlockingCollection<int>(boundedCapacity: 10);
-
-            Task producerThread = Task.Factory.StartNew(() =>
+            List<Task> _appTasks = new List<Task>();
+            
+            // Producer
+            _appTasks.Add(Task.Factory.StartNew(() =>
             {
                 for (int i = 0; i < 10; ++i)
                 {
@@ -35,22 +39,27 @@ namespace Homework17
                 }
 
                 bCollection.CompleteAdding();
-            });
+            }));
 
-            Task consumerThread = Task.Factory.StartNew(() =>
+            // Consumers - up to 4
+            for (int i = 0; i < 4; i++)
             {
-                while (!bCollection.IsCompleted)
+                _appTasks.Add(Task.Factory.StartNew(() =>
                 {
-                    int item = bCollection.Take();
-                    Console.WriteLine(item);
-                }
-            });
+                    while (!bCollection.IsCompleted)
+                    {
+                        int item = bCollection.Take();
+                        Console.WriteLine(item);
+                    }
+                }));
+            }
 
-            Task.WaitAll(producerThread, consumerThread);
-
+            // 
+            Task.WaitAll(_appTasks.ToArray());
 
 
             Console.WriteLine("Hello World!");
         }
+
     }
 }

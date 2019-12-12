@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Homework15
 {
@@ -22,7 +26,31 @@ namespace Homework15
                 you can generate own files also using https://github.com/andreiscutariu002/wantsome-dotnet-public/tree/master/advanced.day.02.threading.home/sln/WordGenerator (just run the console)
             */
 
+            // Create a concurrent collection for adding results
+            ConcurrentBag<string> bag = new ConcurrentBag<string>();
+
+            // Create the Task Factory and add all the Tasks from 0 to threadsNumber to process different ranges in parallel 
+            TaskFactory tf = new TaskFactory(TaskCreationOptions.AttachedToParent, TaskContinuationOptions.ExecuteSynchronously);
+
+            for (int i = 0; i < 10; i++)
+            {
+                // Start new Tasks for each segment we need to calculate
+                tf.StartNew(() =>
+                {
+
+                    bag.Add("");
+
+                });
+            }
+
+           
+
             Console.WriteLine("Hello World!");
+        }
+
+        private async Task<string> DownloadString(string url)
+        {
+            return await new WebClient().DownloadStringTaskAsync(url);
         }
     }
 }
