@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Homework17
@@ -27,6 +28,8 @@ namespace Homework17
                     what is happening with the work in progress stuff when app exit12 - Homework
             */
 
+            AutoResetEvent autoEvent1 = new AutoResetEvent(false);
+
             BlockingCollection<int> bCollection = new BlockingCollection<int>(boundedCapacity: 10);
             List<Task> _appTasks = new List<Task>();
             
@@ -49,7 +52,7 @@ namespace Homework17
                     while (!bCollection.IsCompleted)
                     {
                         int item = bCollection.Take();
-                        Console.WriteLine(item);
+                        Console.WriteLine("Consumer" + item);
                     }
                 }));
             }

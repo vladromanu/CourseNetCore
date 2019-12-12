@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,15 +28,13 @@ namespace Homework14
 
         static void Main(string[] args)
         {
+            SolutionThreads();
 
-            //SolutionThreads();
-
-            SolutionTaskFactoryContinueWhenAll();
+            //SolutionTaskFactoryContinueWhenAll();
 
             //SolutionTaskFactoryContinueWithFromParentTask();
 
             Console.ReadKey();
-
         }
 
         private static void SolutionThreads()
@@ -44,7 +43,7 @@ namespace Homework14
 
             for (int i = 0; i < maxNumber/_batchSize; i++)
             {
-                var thread = new Thread(DoWork);
+                var thread = new Thread(FindMaxDivisors);
                 _threadList.Add(thread);
 
                 thread.Start(i);
@@ -63,7 +62,7 @@ namespace Homework14
 
         }
 
-        public static void DoWork(object start)
+        public static void FindMaxDivisors(object start)
         {
             Record record = Enumerable.Range((int) start * _batchSize, _batchSize).Select(number => new Record()
             {
