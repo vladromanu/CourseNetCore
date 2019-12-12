@@ -45,7 +45,7 @@ namespace Homework17
                 _appTasks.Add(Task.Factory.StartNew(() =>
                 {
                     // Wait to get the lock; max 4
-                    _sem.Wait();
+                    _sem.Wait(cToken);// cancellation token given
 
                     // While we have not closed the collection or cancellation was not requested
                     while (!bFileCollection.IsCompleted && !cToken.IsCancellationRequested)
@@ -75,7 +75,24 @@ namespace Homework17
                 }, cToken));
             }
 
-            Task.WaitAll(_appTasks.ToArray());
+            try
+            {
+                Task.WaitAll(_appTasks.ToArray());
+            }
+            catch (AggregateException ex)
+            {
+                ex.Flatten().Handle(ex =>
+                {
+                    if (ex is TaskCanceledException)
+                    {
+                        Console.WriteLine("TaskCanceledException was handled ");
+                        return true; // This exception is "handled"
+                    }
+
+                    return false; // All other exceptions will get rethrown
+                });
+            }
+            
             
             Console.WriteLine("\n\n Files: ");
             foreach (var item in cDictionary)
