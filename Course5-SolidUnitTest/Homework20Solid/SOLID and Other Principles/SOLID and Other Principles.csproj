@@ -78,6 +78,11 @@
     <Compile Include="4. Interface Segregation\1.1. Worker - Before\Contracts\IWorker.cs" />
     <Compile Include="4. Interface Segregation\1.1. Worker - Before\Human.cs" />
     <Compile Include="4. Interface Segregation\1.1. Worker - Before\Robot.cs" />
+    <Compile Include="4. Interface Segregation\2.2. Identity - After\AccountContoller.cs" />
+    <Compile Include="4. Interface Segregation\2.2. Identity - After\AccountManager.cs" />
+    <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\IAccount.cs" />
+    <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\IManager.cs" />
+    <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\IUser.cs" />
     <Compile Include="4. Interface Segregation\2.1. Identity - Before\AccountContoller.cs" />
     <Compile Include="4. Interface Segregation\2.1. Identity - Before\Contracts\IAccount.cs" />
     <Compile Include="4. Interface Segregation\2.1. Identity - Before\Contracts\IUser.cs" />

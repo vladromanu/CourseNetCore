@@ -1,6 +1,6 @@
 ﻿namespace OpenClosedShoppingCartAfter
 {
-    abstract class OrderItem : IOrderItem
+    public abstract class OrderItem : IOrderItem
     {
         public string Sku { get; set; }
         public int Quantity { get; set; }
