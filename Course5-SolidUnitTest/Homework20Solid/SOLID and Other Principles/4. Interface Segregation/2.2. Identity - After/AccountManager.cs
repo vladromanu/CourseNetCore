@@ -2,7 +2,7 @@
 {
     using InterfaceSegregationIdentityAfter.Contracts;
 
-    public class AccountManager : IManager
+    public class AccountManager : IManager, IEmailValidation
     {
         public bool RequireUniqueEmail { get; set; }
 

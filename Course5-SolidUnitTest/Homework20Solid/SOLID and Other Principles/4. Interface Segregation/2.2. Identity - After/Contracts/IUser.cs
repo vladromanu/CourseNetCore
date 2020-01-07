@@ -7,5 +7,7 @@
         string Email { get; }
 
         string PasswordHash { get; }
+
+        bool Online { get; set; }
     }
 }

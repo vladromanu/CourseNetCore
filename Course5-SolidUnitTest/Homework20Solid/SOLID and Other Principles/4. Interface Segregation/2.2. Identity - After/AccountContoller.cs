@@ -1,28 +1,34 @@
 ﻿namespace InterfaceSegregationIdentityAfter
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
     using InterfaceSegregationIdentityAfter.Contracts;
 
-    public class AccountContoller : IAccount
+    public class AccountContoller : IAccount, IAccountAuth
     {
         private readonly IManager manager;
-        
-        private IUser User;
-        private IEnumerable<IUser> UserList;
-        private IEnumerable<IUser> OnlineUserList;
 
-        public AccountContoller(IManager account)
+        private List<IUser> UserList;
+
+        bool IEmailValidation.RequireUniqueEmail { get; set; }
+        int IEmailValidation.MinRequiredPasswordLength { get; set; }
+        int IEmailValidation.MaxRequiredPasswordLength { get; set; }
+
+
+        public AccountContoller(IManager manager)
         {
             this.manager = manager;
         }
 
+        // IManager implementations 
         public void ChangePassword(string oldPass, string newPass)
         {
             this.manager.ChangePassword(oldPass, newPass);
         }
 
+        // IAccount implementations 
         public IEnumerable<IUser> GetAllUsers()
         {
             return this.UserList;
@@ -30,14 +36,19 @@
 
         public IEnumerable<IUser> GetAllUsersOnline()
         {
-            return this.OnlineUserList;
+            List<IUser> OnlineUsers = this.UserList.FindAll((i) =>
+            {
+                return i.Online;
+            });
+
+            return OnlineUsers;
         }
 
         public IUser GetUserByName(string name)
         {
-            var user = (from usr in this.UserList
-                       where usr.Name.ToLower() = name.Trim().ToLower()
-                       select usr).FirstOrDefault();
+            IUser user = (from usr in this.UserList
+                        where usr.Name.ToLower() == name.Trim().ToLower()
+                        select usr).FirstOrDefault();
 
             if(user == null)
             {
@@ -47,31 +58,46 @@
             return user;
         }
 
+        // IAccountAuth implementations
         public void Login(string username, string password)
         {
             string hash = GenerateWeakPassword(password);
 
-            var user = (from usr in this.UserList
-                        where usr.Name.ToLower() = name.Trim().ToLower()
-                        && usr.Password = hash
+            IUser user = (from usr in this.UserList
+                        where usr.Email == username.Trim() && usr.PasswordHash == hash
                         select usr).FirstOrDefault();
-            
+
             if (user == null)
             {
                 throw new KeyNotFoundException("Invalid login credentials");
             }
 
-            // if user is already int the online list ..
-            // ..
-            if (user == null)
+            if (user.Online == true)
             {
-                throw new System.Exception("User is already loged in");
+                throw new System.InvalidOperationException("User is already loged in");
             }
 
-            // Add in the online users list ..
-            //this.OnlineUserList.Add(user);
+            // Put it online
+            user.Online = true;
+
         }
-	
+        public void Register(string username, string password)
+        {
+            // validate 
+            // RequireUniqueEmail
+            // MinRequiredPasswordLength
+            // MaxRequiredPasswordLength
+            // ...
+
+            string hash = GenerateWeakPassword(password);
+
+            // And in the list
+            User user = new User(username, hash);
+            this.UserList.Add(user);
+        }
+
+
+
         public string GenerateWeakPassword(string input)
         {
             MD5 md5 = MD5.Create();
@@ -86,17 +112,6 @@
             }
 
             return sb.ToString();
-        }
-
-
-        public void Register(string username, string password)
-        {
-            // Create new user 
-            string hash = GenerateWeakPassword(password);
-            // .. 
-
-            // Add it in the user list 
-            // this.userList.Add();
         }
 
     }

@@ -81,20 +81,33 @@
     <Compile Include="4. Interface Segregation\2.2. Identity - After\AccountContoller.cs" />
     <Compile Include="4. Interface Segregation\2.2. Identity - After\AccountManager.cs" />
     <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\IAccount.cs" />
+    <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\IAccountAuth.cs" />
+    <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\IEmailValidation.cs" />
     <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\IManager.cs" />
     <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\IUser.cs" />
     <Compile Include="4. Interface Segregation\2.1. Identity - Before\AccountContoller.cs" />
     <Compile Include="4. Interface Segregation\2.1. Identity - Before\Contracts\IAccount.cs" />
     <Compile Include="4. Interface Segregation\2.1. Identity - Before\Contracts\IUser.cs" />
     <Compile Include="4. Interface Segregation\2.1. Identity - Before\AccountManager.cs" />
+    <Compile Include="4. Interface Segregation\2.2. Identity - After\Contracts\User.cs" />
     <Compile Include="5. Dependency Inversion\1.2. Hello World - After\HelloWorld.cs" />
     <Compile Include="5. Dependency Inversion\1.1. Hello World - Before\HelloWorld.cs" />
+    <Compile Include="5. Dependency Inversion\2.2. Worker - After\IWorker.cs" />
+    <Compile Include="5. Dependency Inversion\2.2. Worker - After\Manager.cs" />
+    <Compile Include="5. Dependency Inversion\2.2. Worker - After\Worker.cs" />
     <Compile Include="5. Dependency Inversion\2.1. Worker - Before\Manager.cs" />
     <Compile Include="5. Dependency Inversion\2.1. Worker - Before\Worker.cs" />
+    <Compile Include="5. Dependency Inversion\3.2. Database - After\Courses.cs" />
+    <Compile Include="5. Dependency Inversion\3.2. Database - After\Data.cs" />
+    <Compile Include="5. Dependency Inversion\3.2. Database - After\IData.cs" />
+    <Compile Include="5. Dependency Inversion\3.2. Database - After\Static\Courses.cs" />
+    <Compile Include="5. Dependency Inversion\3.2. Database - After\Static\Data.cs" />
     <Compile Include="5. Dependency Inversion\3.1. Database - Before\Courses.cs" />
     <Compile Include="5. Dependency Inversion\3.1. Database - Before\Data.cs" />
     <Compile Include="5. Dependency Inversion\3.1. Database - Before\Static\Courses.cs" />
     <Compile Include="5. Dependency Inversion\3.1. Database - Before\Static\Data.cs" />
+    <Compile Include="5. Dependency Inversion\3.2. Database - After\Static\DataWrapper.cs" />
+    <Compile Include="5. Dependency Inversion\3.2. Database - After\Static\IDataWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
