@@ -184,7 +184,7 @@
              * Add verifications to prove emails notification were attempted twice
              * Add verification that error logger was called
              */
-            notificationServiceMock.Verify(x => x.SendEmail(bobMock.Object, It.IsAny<string>()), Times.Exactly(2));
+            notificationServiceMock.Verify(x => x.SendEmail(It.IsAny<IEmployee>(), It.IsAny<string>()), Times.Exactly(2));
             loggerMock.Verify(x => x.Error(It.IsAny<Exception>()), Times.Exactly(2));
 
         }
