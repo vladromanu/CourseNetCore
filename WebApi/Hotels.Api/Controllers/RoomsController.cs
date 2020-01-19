@@ -11,6 +11,8 @@ using Hotels.Api.Resources.Room;
 using Hotels.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 
 namespace Hotels.Api.Controllers
 {
@@ -20,31 +22,61 @@ namespace Hotels.Api.Controllers
     {
         private readonly ApiDbContext _context;
         private readonly INotificationService _notificationService;
+        private IConfiguration _config;
+        private IMemoryCache _cache;
 
-        public RoomsController(ApiDbContext context, INotificationService notificationService)
+        private double _cacheTimeout;
+        
+        public RoomsController(ApiDbContext context, INotificationService notificationService, IConfiguration iConfig, IMemoryCache memoryCache)
         {
             this._context = context;
             this._notificationService = notificationService;
+            
+            // Usage of the in-memory cache
+            this._cache = memoryCache;
+
+            // Usage of the configuration options
+            this._config = iConfig;
+            this._cacheTimeout = double.Parse(this._config
+                                    .GetSection("AppSettings")
+                                    .GetSection("RoomSettings")
+                                    .GetSection("CacheTimeout").Value, System.Globalization.CultureInfo.InvariantCulture);
         }
 
         // GET: api/hotels/{hotelId}/rooms
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Room>>> GetRooms(int hotelId, CancellationToken token)
+        public async Task<ActionResult<List<Room>>> GetRooms(int hotelId, CancellationToken token)
         {
             this._notificationService.Notify($"api/hotels/{hotelId}/rooms was called");
 
-            var hotel = await this._context.Hotels.FindAsync(new object[] { hotelId }, token);
-            if (hotel == null)
+            var key = $"C_HOTEL_ROOMS_{hotelId}";
+            if (this._cache.TryGetValue(key, out List<Room> roomList))
             {
-                return this.NotFound();
+                this._notificationService.Notify($"api/hotels/{hotelId}/rooms cached hit !");
+            }
+            else
+            {
+                this._notificationService.Notify($"api/hotels/{hotelId}/rooms <Cache> not hit !");
+
+                var hotel = await this._context.Hotels
+                    .Include(h => h.Rooms)
+                    .FirstOrDefaultAsync(h => h.Id == hotelId, token);
+
+                
+                if (hotel == null) return this.NotFound();
+                if (hotel.Rooms == null) return this.NoContent();
+
+
+                roomList = hotel.Rooms;
+                
+                // Update cache 
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(this._cacheTimeout));
+
+                this._cache.Set(key, roomList, cacheEntryOptions);
             }
 
-            if (hotel.Rooms == null)
-            {
-                return this.NoContent();
-            }
-
-            return hotel.Rooms.ToList();
+            return roomList;
         }
 
 
@@ -54,19 +86,34 @@ namespace Hotels.Api.Controllers
         {
             this._notificationService.Notify($"api/hotels/{hotelId}/rooms/{id} was called");
 
-            var hotel = await this._context.Hotels.FindAsync(new object[] { hotelId }, token);
-            if (hotel == null)
+            var key = $"C_ROOM_{hotelId}_{id}";
+            if (this._cache.TryGetValue(key, out RoomResource roomResource))
             {
-                return this.NotFound();
+                this._notificationService.Notify($"api/hotels/{hotelId}/rooms cached hit !");
+            }
+            else
+            {
+                var hotel = await this._context.Hotels
+                    .Include(i => i.Rooms)
+                    .FirstOrDefaultAsync(i => i.Id == hotelId, token);
+
+                if (hotel == null)  return this.NotFound();
+                
+                var room = hotel.Rooms.ToList()
+                    .Where(e => e.RoomId == id)
+                    .FirstOrDefault();
+                
+                if (room == null)   return this.NotFound();
+
+                roomResource = room.MapAsResource();
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(this._cacheTimeout));
+
+                this._cache.Set(key, roomResource, cacheEntryOptions);
+
             }
 
-            var room = hotel.Rooms.Find(e => e.Id == id);
-            if (room == null)
-            {
-                return this.NotFound();
-            }
-
-            return Ok(room.MapAsResource());
+            return Ok(roomResource);
         }
 
         // POST: api/hotels/{hotelId}/rooms
@@ -75,57 +122,53 @@ namespace Hotels.Api.Controllers
         {
             this._notificationService.Notify($"api/hotels/{hotelId}/rooms POST was called");
 
-            var hotel = await this._context.Hotels.FindAsync(new object[] { hotelId }, token);
-            if (hotel == null)
-            {
-                return this.NotFound();
-            }
+            var hotel = this._context.Hotels
+                    .Include(h => h.Rooms)
+                    .Where(h => h.Id == hotelId)
+                    .FirstOrDefault();
+            
+            if (hotel == null) return this.NotFound();
 
-            var entity = model.MapAsEntity();
+            var room = model.MapAsEntity();
+            room.HotelId = hotelId;
 
-            hotel.Rooms.Add(entity);
+            // STOP on cancellation issued
+            if (token.IsCancellationRequested) return this.NoContent();
+
+            this._context.Rooms.Add(room);
             this._context.Entry(hotel).State = EntityState.Modified;
-
-            if (token.IsCancellationRequested)
-            {
-                return this.NoContent();
-            }
-
             await this._context.SaveChangesAsync(token);
 
-            this._notificationService.Notify($"api/hotels/{hotelId}/rooms POST => room with id {entity.Id} created!");
+            // STOP on cancellation issued
+            if (token.IsCancellationRequested) return this.NoContent();
+
+            this._notificationService.Notify($"api/hotels/{hotelId}/rooms POST => room with id {room.RoomId} created!");
 
             return this.CreatedAtAction("GetRoomById", new
             {
                 hotelId = hotel.Id,
-                id = entity.Id,
+                id = room.RoomId,
                 token
-            }, entity.MapAsResource());
+            }, room.MapAsResource());
         }
 
-        // DELETE: api/TodoItems/5
+        // DELETE: api/hotels/{hotelId}/rooms
         [HttpDelete("{id:int:min(1)}")]
-        public async Task<ActionResult<HotelResource>> DeleteHotel(int id, CancellationToken token)
+        public async Task<ActionResult<HotelResource>> DeleteRoom(int hotelId, int id, CancellationToken token)
         {
-            var hotel = await this._context.Hotels.FindAsync(new object[] { id }, token);
+            var room = await this._context.Rooms
+                   .FirstOrDefaultAsync(h => h.HotelId == hotelId && h.RoomId == id, token);
 
-            if (hotel == null)
-            {
-                return this.NotFound();
-            }
+            if (room == null) return this.NotFound();
 
-            var room = hotel.Rooms.Find(e => e.Id == id);
-            if (room == null)
-            {
-                return this.NotFound();
-            }
-
-            hotel.Rooms.Remove(room);
-            this._context.Entry(hotel).State = EntityState.Modified;
-
+            this._context.Rooms.Remove(room);
             await this._context.SaveChangesAsync(token);
 
-            return hotel.MapAsResource();
+            // Invalidate cache
+            this._cache.Remove($"C_ROOM_{hotelId}_{id}");
+            this._cache.Remove($"C_HOTEL_ROOMS_{hotelId}");
+
+            return Ok();
         }
     }
 }

@@ -10,12 +10,12 @@ using Hotels.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
-using System.Runtime.Caching;
 
 namespace Hotels.Api.Controllers
 {
     using Data;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
 
     [Route("api/hotels")]
     [ApiController]
@@ -23,13 +23,25 @@ namespace Hotels.Api.Controllers
     {
         private readonly ApiDbContext _context;
         private readonly INotificationService _notificationService;
-        private readonly IMemoryCache _memoryCache;
+        private IConfiguration _config;
+        private IMemoryCache _cache;
 
-        public HotelsController(ApiDbContext context, INotificationService notificationService)
+        private double _cacheTimeout;
+
+        public HotelsController(ApiDbContext context, INotificationService notificationService, IConfiguration iConfig, IMemoryCache memoryCache)
         {
             this._context = context;
             this._notificationService = notificationService;
-            this._memoryCache = MemoryCache.
+            
+            // Usage of the in-memory cache
+            this._cache = memoryCache;
+
+            // Usage of the configuration options
+            this._config = iConfig;
+            this._cacheTimeout = double.Parse(this._config
+                                    .GetSection("AppSettings")
+                                    .GetSection("HotelSettings")
+                                    .GetSection("CacheTimeout").Value, System.Globalization.CultureInfo.InvariantCulture);
         }
 
 
@@ -38,6 +50,7 @@ namespace Hotels.Api.Controllers
         public async Task<ActionResult<IEnumerable<Hotel>>> GetHotels(CancellationToken token)
         {
             this._notificationService.Notify("api/hotels was called");
+
             return await this._context.Hotels.ToListAsync(token);
         }
 
@@ -46,13 +59,16 @@ namespace Hotels.Api.Controllers
         [HttpGet("{id:int:min(1)}")]
         public async Task<ActionResult<HotelResource>> GetHotelById(int id, CancellationToken token)
         {
-            var key = $"_entry_{id}";
-            if (this.memoryCache.TryGetValue(key, out HotelResource hotelResource))
+            var key = $"C_HOTELS_{id}";
+
+            if (this._cache.TryGetValue(key, out HotelResource hotelResource))
             {
                 this._notificationService.Notify($"api/hotels/{id} was called. Cached hit !");
             }
             else
             {
+                this._notificationService.Notify($"api/hotels/{id} was called. Cached not hit !");
+
                 var hotel = await this._context.Hotels.FindAsync(new object[] { id }, token);
                 if (hotel == null)
                 {
@@ -60,14 +76,15 @@ namespace Hotels.Api.Controllers
                 }
 
                 hotelResource = hotel.MapAsResource();
+                
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(this._cacheTimeout));
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(10));
-                this.memoryCache.Set(key, hotelResource, cacheEntryOptions);
+                this._cache.Set(key, hotelResource, cacheEntryOptions);
             }
             
             return Ok(hotelResource);
         }
-
 
         // POST: api/hotels
         [HttpPost]
@@ -105,6 +122,9 @@ namespace Hotels.Api.Controllers
             this._context.Hotels.Remove(hotel);
             await this._context.SaveChangesAsync(token);
 
+            // Invalidate cache
+            this._cache.Remove($"C_HOTELS_{id}");
+
             return hotel.MapAsResource();
         }
 
@@ -127,6 +147,9 @@ namespace Hotels.Api.Controllers
             try
             {
                 await this._context.SaveChangesAsync(token);
+
+                // Invalidate cache
+                this._cache.Remove($"C_HOTELS_{id}");
             }
             catch (DbUpdateConcurrencyException)
             {

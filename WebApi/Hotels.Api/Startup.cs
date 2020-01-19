@@ -27,9 +27,30 @@ namespace Hotels.Api
             services.AddDbContext<ApiDbContext>(options =>
                 options.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Inject In-Memory caching 
+            services.AddMemoryCache();
+
+            // Distributed Memory Caching
+            services.AddDistributedMemoryCache();
+
+            // SQL Distributed Memory Cache
+            /*services.AddDistributedSqlServerCache(options =>
+            {
+                options.ConnectionString = this.Configuration.GetConnectionString("DefaultConnection"));
+                options.SchemaName = "dbo";
+                options.TableName = "TestCache";
+            });*/
+
+            // Redis Distributed Cache
+            /*services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "localhost";
+                options.InstanceName = "SampleInstance";
+            });*/
+
             services.AddControllers();
 
-            // Register the Swagger generator, defining 1 or more Swagger documents
+            // Add Swagger Generator
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });

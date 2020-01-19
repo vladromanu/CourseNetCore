@@ -8,9 +8,10 @@ namespace Hotels.Api.Data.Entities
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required, MaxLength(30)]
         public string Name { get; set; }
 
+        [Required, MaxLength(30)]
         public string City { get; set; }
 
         public List<Room> Rooms { get; set; }

@@ -6,15 +6,15 @@ namespace Hotels.Api.Data.Entities
 {
     public class Room
     {
-        public int Id { get; set; }
+        public int RoomId { get; set; }
 
-        [Required]
+        [Required, MaxLength(20)]
         public string Number { get; set; }
 
-        [Required]
+        [Required, MaxLength(30)]
         public string Name { get; set; }
 
-        [Required]
+        [Required, MaxLength(10)]
         public string Category { get; set; }
 
         public string Amenities { get; set; }
@@ -22,5 +22,8 @@ namespace Hotels.Api.Data.Entities
         public int MaxAdultOccupancy { get; set; }
 
         public int MaxChildOccupancy { get; set; }
+
+        public int HotelId { get; set; }
+
     }
 }

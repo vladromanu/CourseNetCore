@@ -11,7 +11,6 @@ namespace Hotels.Api.Extensions
         {
             return new Room
             {
-                 Id = resource.Id,
                  Number = resource.Number,
                  Name =  resource.Name,
                  Category = resource.Category
@@ -22,7 +21,7 @@ namespace Hotels.Api.Extensions
         {
             return new RoomResource
             {
-                Id = entity.Id, 
+                RoomId = entity.RoomId, 
                 Number =  entity.Number, 
                 Name = entity.Name, 
                 Category = entity.Category
