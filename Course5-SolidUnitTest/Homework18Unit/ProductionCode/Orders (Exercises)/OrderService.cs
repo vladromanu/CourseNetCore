@@ -37,6 +37,8 @@
 
         public Payment PayInvoice(Order order, int invoiceId)
         {
+            if (order.Invoices.Count == 0) throw new Exception("No invoices");
+
             var invoiceToPay = order.Invoices.First(inv => inv.InvoiceId == invoiceId);
 
             if (invoiceToPay == null) throw new Exception("Invalid InvoiceId");
